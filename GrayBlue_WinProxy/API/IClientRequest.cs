@@ -10,6 +10,6 @@ namespace GrayBlue_WinProxy.API {
         Task<bool> CheckBLEAvailableAsync();
         Task<string[]> ScanAsync();
         Task<bool> ConnectAsync(string deviceId);
-        void Disconnect(string deviceId);
+        Task Disconnect(string deviceId);
     }
 }

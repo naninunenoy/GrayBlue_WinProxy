@@ -27,11 +27,12 @@ namespace GrayBlue_WinProxy.API {
             return Plugin.Instance.ConnectTo(deviceId, this, this);
         }
 
-        public void Disconnect(string deviceId) {
+        public Task Disconnect(string deviceId) {
             Plugin.Instance.DisconnectTo(deviceId);
             Leave().ContinueWith(_ => {
                 Debug.WriteLine($"Leaved {deviceId}");
             });
+            return Task.CompletedTask;
         }
 
         private async Task Join() {
