@@ -116,6 +116,9 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="API\BLEProxy.cs" />
+    <Compile Include="API\IClientRequest.cs" />
+    <Compile Include="API\IServerNotify.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>

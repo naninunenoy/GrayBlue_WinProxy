@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MagicOnion;
 
 namespace GrayBlue_WinProxy.API {
-    interface IClientRequest : IStreamingHub<IClientRequest, IServerNotify> {
+    public interface IClientRequest : IStreamingHub<IClientRequest, IServerNotify> {
         Task<bool> CheckBLEAvailableAsync();
         Task<string[]> ScanAsync();
         Task<bool> ConnectAsync(string deviceId);
