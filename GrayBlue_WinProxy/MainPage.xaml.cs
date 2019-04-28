@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,12 +35,18 @@ namespace GrayBlue_WinProxy {
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
             // server set up
             GrpcEnvironment.SetLogger(new Grpc.Core.Logging.ConsoleLogger());
+            var service = MagicOnionEngine.BuildServerServiceDefinition(isReturnExceptionStackTraceInErrorDetail: true);
+            var port = new ServerPort(serverHostName, serverPortNo, ServerCredentials.Insecure);
             server = new Server {
-                Services = { MagicOnionEngine.BuildServerServiceDefinition(isReturnExceptionStackTraceInErrorDetail: true) },
-                Ports = { new ServerPort(serverHostName, serverPortNo, ServerCredentials.Insecure) }
+                Services = { service },
+                Ports = { port }
             };
             // server start
-            server.Start();
+            try {
+                server.Start();
+            } catch (Exception e) {
+                Debug.WriteLine(e.Message);
+            }
         }
 
         public void Dispose() {

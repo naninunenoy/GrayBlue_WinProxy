@@ -15,23 +15,21 @@ namespace GrayBlue_WinProxy.API {
 
         // IClientRequest
 
-        public Task<bool> CheckBLEAvailableAsync() {
-            return Plugin.Instance.CanUseBle();
+        public async Task<bool> CheckBLEAvailableAsync() {
+            return await Plugin.Instance.CanUseBle();
         }
 
-        public Task<string[]> ScanAsync() {
-            return Plugin.Instance.Scan();
+        public async Task<string[]> ScanAsync() {
+            var result =  await Plugin.Instance.Scan();
+            return result;
         }
 
-        public Task<bool> ConnectAsync(string deviceId) {
-            return Plugin.Instance.ConnectTo(deviceId, this, this);
+        public async Task<bool> ConnectAsync(string deviceId) {
+            return await Plugin.Instance.ConnectTo(deviceId, this, this);
         }
 
         public Task Disconnect(string deviceId) {
             Plugin.Instance.DisconnectTo(deviceId);
-            Leave().ContinueWith(_ => {
-                Debug.WriteLine($"Leaved {deviceId}");
-            });
             return Task.CompletedTask;
         }
 
