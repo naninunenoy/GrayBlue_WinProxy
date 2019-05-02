@@ -12,15 +12,16 @@ namespace GrayBlue_WinProxy {
     class ProxyWebSocket : IBLENotify {
         private readonly Uri uri;
         private readonly ClientWebSocket client;
-        private readonly IBLERequest requestTo;
+        private readonly RequestAgent requestAgent;
         private bool isFinish = false;
 
         private static readonly ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[1024]);
+        private static readonly UTF8Encoding utf8 = new UTF8Encoding();
 
         public ProxyWebSocket(string host, int port, IBLERequest request) {
             uri = new Uri($"ws://{host}:{port}");
             client = new ClientWebSocket();
-            requestTo = request;
+            requestAgent = new RequestAgent(request, this);
         }
 
         public async Task ConnectAsync() {
@@ -48,20 +49,35 @@ namespace GrayBlue_WinProxy {
                     isFinish = true;
                     Debug.Write("WebSocket has closed");
                 }
-
+                // receive json
                 var result = await client.ReceiveAsync(buffer, CancellationToken.None);
-                var str = (new UTF8Encoding()).GetString(buffer.Take(result.Count).ToArray());
-                Debug.WriteLine($"str={str}");
+                if (result.MessageType == WebSocketMessageType.Text) {
+                    var json = utf8.GetString(buffer.Take(result.Count).ToArray());
+                    requestAgent.OnReceiveJson(json);
+                }
             }
         }
 
-        void IBLENotify.OnButtonOperation(string devceId, bool isPush, string button, float time) {
+        void IBLENotify.OnRequestDone(string requestName, string requestParam, string response) {
+            throw new NotImplementedException();
+        }
+
+        void IBLENotify.OnConnectSuccess(string deviceId) {
+            throw new NotImplementedException();
+        }
+
+        void IBLENotify.OnConnectFail(string deviceId) {
             throw new NotImplementedException();
         }
 
         void IBLENotify.OnDeviceLost(string deviceId) {
             throw new NotImplementedException();
         }
+
+        void IBLENotify.OnButtonOperation(string devceId, bool isPush, string button, float time) {
+            throw new NotImplementedException();
+        }
+
 
         void IBLENotify.OnIMUDataUpdate(string deviceId, float[] acc, float[] gyro, float[] mag, float[] quat) {
             throw new NotImplementedException();

@@ -4,18 +4,40 @@ using System.Text;
 using Newtonsoft.Json;
 
 namespace GrayBlue_WinProxy.GrayBlue.Data {
-    [JsonObject("method")]
-    public class Method {
-        [JsonProperty("method")] public string Name { set; get; }
-        [JsonProperty("param")] public string Param { set; get; }
+
+    public enum JsonType {
+        Undefine = 0,
+        Method,
+        Result,
+        NotifyIMU,
+        NotifyButton
     }
+
+    [JsonObject("root")]
+    public class GrayBlueJson {
+        [JsonProperty("type")] public string Type { set; get; }
+        [JsonProperty("content")] public string Content { set; get; }
+    }
+
     public enum MethodType {
         Undefine = 0,
         CheckBle,
         Scan,
         Connect,
         Disconnect,
-        Quit
+        DisconnectAll
+    }
+
+    [JsonObject("method")]
+    public class Method {
+        [JsonProperty("method_name")] public string Name { set; get; }
+        [JsonProperty("method_param")] public string Param { set; get; }
+    }
+
+    [JsonObject("result")]
+    public class MethodResult {
+        [JsonProperty("method")] public Method Method { set; get; }
+        [JsonProperty("result")] public string Result { set; get; }
     }
 
     [JsonObject("imu")]
