@@ -11,5 +11,6 @@ namespace GrayBlue_WinProxy.API {
         Task<string[]> ScanAsync();
         Task<bool> ConnectAsync(string deviceId);
         Task Disconnect(string deviceId);
+        Task Disconnect();
     }
 }
