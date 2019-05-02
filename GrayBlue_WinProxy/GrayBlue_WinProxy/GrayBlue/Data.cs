@@ -9,6 +9,7 @@ namespace GrayBlue_WinProxy.GrayBlue.Data {
         Undefine = 0,
         Method,
         Result,
+        LostDevice,
         NotifyIMU,
         NotifyButton
     }
@@ -38,6 +39,12 @@ namespace GrayBlue_WinProxy.GrayBlue.Data {
     public class MethodResult {
         [JsonProperty("method")] public Method Method { set; get; }
         [JsonProperty("result")] public string Result { set; get; }
+    }
+
+    [JsonObject("device")]
+    public class Device {
+        [JsonProperty("device_id")] public string DeviceId { set; get; }
+        [JsonProperty("device_state")] public string State { set; get; }
     }
 
     [JsonObject("imu")]

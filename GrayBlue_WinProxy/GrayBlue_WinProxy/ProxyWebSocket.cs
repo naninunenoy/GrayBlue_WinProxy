@@ -59,28 +59,52 @@ namespace GrayBlue_WinProxy {
         }
 
         void IBLENotify.OnRequestDone(string requestName, string requestParam, string response) {
-            throw new NotImplementedException();
+            var json = JsonConverter.ToMethodResultJson(requestName, requestName, response);
+            var buff = new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
+            if (client.State == WebSocketState.Open) {
+                client.SendAsync(buff, WebSocketMessageType.Text, true, CancellationToken.None);
+            }
         }
 
         void IBLENotify.OnConnectSuccess(string deviceId) {
-            throw new NotImplementedException();
+            var json = JsonConverter.ToConnectResultJson(deviceId, true);
+            var buff = new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
+            if (client.State == WebSocketState.Open) {
+                client.SendAsync(buff, WebSocketMessageType.Text, true, CancellationToken.None);
+            }
         }
 
         void IBLENotify.OnConnectFail(string deviceId) {
-            throw new NotImplementedException();
+            var json = JsonConverter.ToConnectResultJson(deviceId, false);
+            var buff = new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
+            if (client.State == WebSocketState.Open) {
+                client.SendAsync(buff, WebSocketMessageType.Text, true, CancellationToken.None);
+            }
         }
 
         void IBLENotify.OnDeviceLost(string deviceId) {
-            throw new NotImplementedException();
+            var json = JsonConverter.ToDeviceLostJson(deviceId);
+            var buff = new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
+            if (client.State == WebSocketState.Open) {
+                client.SendAsync(buff, WebSocketMessageType.Text, true, CancellationToken.None);
+            }
         }
 
         void IBLENotify.OnButtonOperation(string devceId, bool isPush, string button, float time) {
-            throw new NotImplementedException();
+            var json = JsonConverter.ToButtonNotifyJson(devceId, isPush, button, time);
+            var buff = new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
+            if (client.State == WebSocketState.Open) {
+                client.SendAsync(buff, WebSocketMessageType.Text, true, CancellationToken.None);
+            }
         }
 
 
         void IBLENotify.OnIMUDataUpdate(string deviceId, float[] acc, float[] gyro, float[] mag, float[] quat) {
-            throw new NotImplementedException();
+            var json = JsonConverter.ToIMUNotifyJson(deviceId, acc, gyro, mag, quat);
+            var buff = new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
+            if (client.State == WebSocketState.Open) {
+                client.SendAsync(buff, WebSocketMessageType.Text, true, CancellationToken.None);
+            }
         }
     }
 }
