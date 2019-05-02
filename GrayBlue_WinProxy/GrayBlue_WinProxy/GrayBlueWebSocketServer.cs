@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using System.Net.WebSockets;
 using System.Net;
+using System.Net.WebSockets;
 
 namespace GrayBlue_WinProxy {
     /**
@@ -22,8 +22,11 @@ namespace GrayBlue_WinProxy {
             httpListener.Prefixes.Add($"http://{host}:{port}/");
         }
 
-        public async Task WakeUpAsync() {
+        public void Start() {
             httpListener.Start();
+        }
+
+        public async Task RunAsync() {
             // wait for client
             while (!isFinish) {
                 var listenerContext = await httpListener.GetContextAsync();
