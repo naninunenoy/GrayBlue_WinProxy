@@ -5,13 +5,16 @@ using System.Text;
 using GrayBlueUWPCore;
 
 namespace GrayBlue_WinProxy.GrayBlue {
-    class BLEProxy : IBLERequest, IConnectionDelegate, INotifyDelegate {
+    class BLEProxy : IBLERequest, IConnectionDelegate, INotifyDelegate, IDisposable {
         private readonly IPlugin plugin;
-        private readonly IBLENotify listenner;
+        public IBLENotify BLENotifyDelegate { set; get; }
 
-        public BLEProxy(IBLENotify listenner) {
+        public BLEProxy() {
             plugin = Plugin.Instance;
-            this.listenner = listenner;
+        }
+
+        public void Dispose() {
+            plugin.Dispose();
         }
 
         public async Task<bool> CheckBLEAsync() {
@@ -47,21 +50,21 @@ namespace GrayBlue_WinProxy.GrayBlue {
         }
 
         void IConnectionDelegate.OnConnectLost(string deviceId) {
-            listenner.OnDeviceLost(deviceId);
+            BLENotifyDelegate?.OnDeviceLost(deviceId);
         }
 
         // INotifyDelegate
 
         void INotifyDelegate.OnIMUDataUpdate(string deviceId, float[] acc, float[] gyro, float[] mag, float[] quat) {
-            listenner.OnIMUDataUpdate(deviceId, acc, gyro, mag, quat);
+            BLENotifyDelegate?.OnIMUDataUpdate(deviceId, acc, gyro, mag, quat);
         }
 
         void INotifyDelegate.OnButtonPush(string deviceId, string buttonName) {
-            listenner.OnButtonOperation(deviceId, true, buttonName, 0.0F);
+            BLENotifyDelegate?.OnButtonOperation(deviceId, true, buttonName, 0.0F);
         }
 
         void INotifyDelegate.OnButtonRelease(string deviceId, string buttonName, float pressTime) {
-            listenner.OnButtonOperation(deviceId, false, buttonName, pressTime);
+            BLENotifyDelegate?.OnButtonOperation(deviceId, false, buttonName, pressTime);
         }
     }
 }
