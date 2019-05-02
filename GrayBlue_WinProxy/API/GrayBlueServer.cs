@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,59 +12,62 @@ namespace GrayBlue_WinProxy.API {
         private readonly BLEProxy bleProxy;
 
         public GrayBlueServer(string host, int port) {
-            webSocket = new WebSocket($"ws://{host}:{port}/");
+            webSocket = new WebSocket($"ws://{host}:{port}");
             bleProxy = new BLEProxy();
         }
 
         public void Open() {
             bleProxy.Validate(this);
-            webSocket.OnOpen += WebSocket_OnOpen;
-            webSocket.OnMessage += WebSocket_OnMessage;
-            webSocket.OnError += WebSocket_OnError;
-            webSocket.OnClose += WebSocket_OnClose;
+            webSocket.OnOpen += OnOpenWebSocket;
+            webSocket.OnMessage += OnMessageWebSocket;
+            webSocket.OnError += OnErrorWebSocket;
+            webSocket.OnClose += OnCloseWebSocket;
             webSocket.Connect();
         }
 
         public void Close() {
             bleProxy.Unvalidate();
             bleProxy.Disconnect().Wait();
-            webSocket.OnOpen -= WebSocket_OnOpen;
-            webSocket.OnMessage -= WebSocket_OnMessage;
-            webSocket.OnError -= WebSocket_OnError;
-            webSocket.OnClose -= WebSocket_OnClose;
+            webSocket.OnOpen -= OnOpenWebSocket;
+            webSocket.OnMessage -= OnMessageWebSocket;
+            webSocket.OnError -= OnErrorWebSocket;
+            webSocket.OnClose -= OnCloseWebSocket;
             webSocket.Close();
         }
 
         // WebSocket callback
 
-        private void WebSocket_OnClose(object sender, CloseEventArgs e) {
-            throw new NotImplementedException();
+        private void OnOpenWebSocket(object sender, EventArgs e) {
+            Debug.WriteLine($"OnOpenWebSocket");
         }
 
-        private void WebSocket_OnError(object sender, ErrorEventArgs e) {
-            throw new NotImplementedException();
+        private void OnMessageWebSocket(object sender, MessageEventArgs e) {
+            Debug.WriteLine($"OnMessageWebSocket {e.Data}");
         }
 
-        private void WebSocket_OnMessage(object sender, MessageEventArgs e) {
-            throw new NotImplementedException();
+        private void OnCloseWebSocket(object sender, CloseEventArgs e) {
+            Debug.WriteLine($"OnCloseWebSocket {e.Reason}");
         }
 
-        private void WebSocket_OnOpen(object sender, EventArgs e) {
-            throw new NotImplementedException();
+        private void OnErrorWebSocket(object sender, ErrorEventArgs e) {
+            Debug.WriteLine($"OnErrorWebSocket {e.Message}");
         }
 
         // IServerNotify
 
         void IServerNotify.OnSensorUpdateNotify(string deviceId, float[] acc, float[] gyro, float[] mag, float[] quat) {
-            throw new NotImplementedException();
+            //Debug.WriteLine($"OnSensorUpdateNotify");
+            //throw new NotImplementedException();
         }
 
         void IServerNotify.OnButtonUpdateNotify(string deviceId, bool isPressed, string button, float time) {
-            throw new NotImplementedException();
+            Debug.WriteLine($"OnButtonUpdateNotify");
+            //throw new NotImplementedException();
         }
 
         void IServerNotify.OnDeviceLost(string deviceId) {
-            throw new NotImplementedException();
+            Debug.WriteLine($"OnDeviceLost");
+            //throw new NotImplementedException();
         }
     }
 }

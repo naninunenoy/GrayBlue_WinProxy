@@ -25,8 +25,9 @@ namespace GrayBlue_WinProxy {
     /// </summary>
     public sealed partial class MainPage : Page, IDisposable {
         //Server server;
-        string serverHostName = "localhost";
-        int serverPortNo = 12345;
+        const string serverHostName = "localhost";
+        const int serverPortNo = 12345;
+        API.GrayBlueServer server = default;
 
         public MainPage() {
             this.InitializeComponent();
@@ -34,23 +35,12 @@ namespace GrayBlue_WinProxy {
             ApplicationView.PreferredLaunchViewSize = new Size { Height = 320, Width = 369 };
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
             // server set up
-            //GrpcEnvironment.SetLogger(new Grpc.Core.Logging.ConsoleLogger());
-            //var service = MagicOnionEngine.BuildServerServiceDefinition(isReturnExceptionStackTraceInErrorDetail: true);
-            //var port = new ServerPort(serverHostName, serverPortNo, ServerCredentials.Insecure);
-            //server = new Server {
-            //    Services = { service },
-            //    Ports = { port }
-            //};
-            //// server start
-            //try {
-            //    server.Start();
-            //} catch (Exception e) {
-            //    Debug.WriteLine(e.Message);
-            //}
+            server = new API.GrayBlueServer(serverHostName, serverPortNo);
+            server.Open();
         }
 
         public void Dispose() {
-            //server?.KillAsync();
+            server.Close();
         }
     }
 }
