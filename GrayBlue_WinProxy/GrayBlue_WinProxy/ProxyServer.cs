@@ -38,6 +38,7 @@ namespace GrayBlue_WinProxy {
                     listenerContext.Response.StatusCode = 400;
                     listenerContext.Response.Close();
                 }
+                await Task.Delay(1);
             }
         }
 
@@ -89,6 +90,7 @@ namespace GrayBlue_WinProxy {
                     Debug.WriteLine("{0}:Session Abort:{1}", DateTime.Now.ToString(), listenerContext.Request.RemoteEndPoint.Address.ToString());
                     break;
                 }
+                await Task.Delay(1);
             }
 
             /// クライアントを除外する

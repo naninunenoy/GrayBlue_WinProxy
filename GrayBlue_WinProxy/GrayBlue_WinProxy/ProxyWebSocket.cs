@@ -55,6 +55,7 @@ namespace GrayBlue_WinProxy {
                     var json = utf8.GetString(buffer.Take(result.Count).ToArray());
                     requestAgent.OnReceiveJson(json);
                 }
+                await Task.Delay(1);
             }
         }
 
