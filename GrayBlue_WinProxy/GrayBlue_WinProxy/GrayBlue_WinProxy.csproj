@@ -5,4 +5,18 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="dll\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="4.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="GrayBlueUWPCore">
+      <HintPath>dll\GrayBlueUWPCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
