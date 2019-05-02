@@ -12,12 +12,12 @@ namespace GrayBlue_WinProxy {
     /**
      * 参考：http://kimux.net/?p=956
      **/
-    class GrayBlueWebSocketServer {
+    class ProxyServer {
         private readonly HttpListener httpListener;
         private bool isFinish = false;
         static List<WebSocket> clients = new List<WebSocket>();
 
-        public GrayBlueWebSocketServer(string host, int port) {
+        public ProxyServer(string host, int port) {
             httpListener = new HttpListener();
             httpListener.Prefixes.Add($"http://{host}:{port}/");
         }

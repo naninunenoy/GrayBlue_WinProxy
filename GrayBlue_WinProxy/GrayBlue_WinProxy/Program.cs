@@ -8,13 +8,13 @@ namespace GrayBlue_WinProxy {
 
         static void Main(string[] args) {
             // server setup
-            var server = new GrayBlueWebSocketServer(hostName, portNo);
+            var server = new ProxyServer(hostName, portNo);
             server.Start();
             Task.Run(() => server.RunAsync());
             // add client
-            var ws = new GrayBlueWebSocket(hostName, portNo);
+            var ws = new ProxyWebSocket(hostName, portNo);
             Task.Run(() => ws.ConnectAsync());
-
+            // finish with Enter key
             Console.ReadKey();
             server.Close();
             ws.Dispose();
