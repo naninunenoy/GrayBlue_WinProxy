@@ -3,12 +3,15 @@ using System.Threading.Tasks;
 
 namespace GrayBlue_WinProxy {
     class Program {
+        const string hostName = "localhost";
+        const int portNo = 12345;
+
         static void Main(string[] args) {
-            GrayBlueUWPCore.Plugin.Instance.Scan().ContinueWith(x => {
-                var lst = x.Result;
-                Console.WriteLine(string.Join(",", lst));
-            });
+            var server = new GrayBlueWebSocketServer(hostName, portNo);
+            Task.Run(() => server.WakeUpAsync());
+
             Console.ReadKey();
+            server.Close();
         }
     }
 }
