@@ -9,7 +9,7 @@ namespace GrayBlue_WinProxy.GrayBlue.Data {
         Undefine = 0,
         Method,
         Result,
-        LostDevice,
+        DeviceStateChange,
         NotifyIMU,
         NotifyButton
     }
