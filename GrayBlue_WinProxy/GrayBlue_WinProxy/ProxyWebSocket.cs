@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Reactive.Linq;
 using GrayBlue_WinProxy.GrayBlue;
 
 namespace GrayBlue_WinProxy {
@@ -13,50 +14,49 @@ namespace GrayBlue_WinProxy {
         private readonly Uri uri;
         private readonly ClientWebSocket client;
         private readonly RequestAgent requestAgent;
-        private bool isFinish = false;
-
-        private static readonly ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[1024]);
-        private static readonly UTF8Encoding utf8 = new UTF8Encoding();
+        private readonly ArraySegment<byte> buffer;
+        private readonly UTF8Encoding utf8;
+        private IDisposable waitForUpdateDisposable;
 
         public ProxyWebSocket(string host, int port, IBLERequest request) {
             uri = new Uri($"ws://{host}:{port}");
             client = new ClientWebSocket();
             requestAgent = new RequestAgent(request, this);
+            buffer = new ArraySegment<byte>(new byte[1024]);
+            utf8 = new UTF8Encoding();
         }
 
         public async Task ConnectAsync() {
             try {
                 await client.ConnectAsync(uri, CancellationToken.None);
-                Task.Run(WaitForUpdate);
+                waitForUpdateDisposable = WaitForUpdate();
             } catch (Exception e) {
                 Debug.WriteLine(e.Message);
             }
         }
 
         public async Task CloseAsync() {
-            isFinish = true;
+            waitForUpdateDisposable.Dispose();
             await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "close", CancellationToken.None);
         }
 
         public void Dispose() {
-            isFinish = true;
+            waitForUpdateDisposable.Dispose();
             client.Dispose();
         }
         
-        private async Task WaitForUpdate() {
-            while (!isFinish) {
-                if (client.State != WebSocketState.Open) {
-                    isFinish = true;
-                    Debug.Write("WebSocket has closed");
-                }
-                // receive json
-                var result = await client.ReceiveAsync(buffer, CancellationToken.None);
-                if (result.MessageType == WebSocketMessageType.Text) {
-                    var json = utf8.GetString(buffer.Take(result.Count).ToArray());
-                    requestAgent.OnReceiveJson(json);
-                }
-                await Task.Delay(1);
-            }
+        private IDisposable WaitForUpdate() {
+            return Observable
+                .Timer(TimeSpan.Zero)
+                .TakeWhile(_ => client.State == WebSocketState.Open)
+                .Subscribe(async _ => {
+                    // receive json
+                    var result = await client.ReceiveAsync(buffer, CancellationToken.None);
+                    if (result.MessageType == WebSocketMessageType.Text) {
+                        var json = utf8.GetString(buffer.Take(result.Count).ToArray());
+                        requestAgent.OnReceiveJson(json);
+                    }
+                });
         }
 
         void IBLENotify.OnRequestDone(string requestName, string requestParam, string response) {
@@ -98,7 +98,6 @@ namespace GrayBlue_WinProxy {
                 client.SendAsync(buff, WebSocketMessageType.Text, true, CancellationToken.None);
             }
         }
-
 
         void IBLENotify.OnIMUDataUpdate(string deviceId, float[] acc, float[] gyro, float[] mag, float[] quat) {
             var json = JsonConverter.ToIMUNotifyJson(deviceId, acc, gyro, mag, quat);
