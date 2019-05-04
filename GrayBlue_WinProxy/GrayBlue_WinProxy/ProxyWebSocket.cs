@@ -55,7 +55,7 @@ namespace GrayBlue_WinProxy {
                         var result = await client.ReceiveAsync(buffer, CancellationToken.None);
                         if (result.MessageType == WebSocketMessageType.Text) {
                             var json = utf8.GetString(buffer.Take(result.Count).ToArray());
-                            requestAgent.OnReceiveJson(json);
+                            //requestAgent.OnReceiveJson(json);
                         }
                     } catch (Exception ex) {
                         Debug.WriteLine(ex.Message);

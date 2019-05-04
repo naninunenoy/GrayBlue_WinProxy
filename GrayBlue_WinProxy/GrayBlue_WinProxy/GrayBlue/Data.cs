@@ -15,9 +15,9 @@ namespace GrayBlue_WinProxy.GrayBlue.Data {
     }
 
     [JsonObject("root")]
-    public class GrayBlueJson {
+    public class GrayBlueJson<T> {
         [JsonProperty("type")] public string Type { set; get; }
-        [JsonProperty("content")] public string Content { set; get; }
+        [JsonProperty("content")] public T Content { set; get; }
     }
 
     public enum MethodType {
