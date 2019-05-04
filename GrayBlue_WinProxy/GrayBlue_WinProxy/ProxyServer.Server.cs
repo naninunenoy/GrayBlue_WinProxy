@@ -87,7 +87,9 @@ namespace GrayBlue_WinProxy {
                             var rawData = buffer.Take(data.Count).ToArray();
                             var message = Encoding.UTF8.GetString(rawData);
                             Debug.WriteLine($"Message:{message}");
-                            // TBD
+
+                            // jsonを解析し、MethodならBLEの操作を行う
+                            requestAgent.OnReceiveJson(message);
 
                             isOpne = (ws.State == WebSocketState.Open);
                         } else if (data.MessageType == WebSocketMessageType.Close) {

@@ -14,7 +14,7 @@ namespace GrayBlue_WinProxy.GrayBlue.Data {
         NotifyButton
     }
 
-    [JsonObject("root")]
+    //[JsonObject("root")]
     public class GrayBlueJson<T> {
         [JsonProperty("type")] public string Type { set; get; }
         [JsonProperty("content")] public T Content { set; get; }
@@ -29,25 +29,25 @@ namespace GrayBlue_WinProxy.GrayBlue.Data {
         DisconnectAll
     }
 
-    [JsonObject("method")]
+    //[JsonObject("method")]
     public class Method {
         [JsonProperty("method_name")] public string Name { set; get; }
         [JsonProperty("method_param")] public string Param { set; get; }
     }
 
-    [JsonObject("result")]
+    //[JsonObject("result")]
     public class MethodResult {
         [JsonProperty("method")] public Method Method { set; get; }
         [JsonProperty("result")] public string Result { set; get; }
     }
 
-    [JsonObject("device")]
+    //[JsonObject("device")]
     public class Device {
         [JsonProperty("device_id")] public string DeviceId { set; get; }
         [JsonProperty("device_state")] public string State { set; get; }
     }
 
-    [JsonObject("imu")]
+    //[JsonObject("imu")]
     public class IMU {
         [JsonProperty("device_id")] public string DeviceId { set; get; }
         [JsonProperty("acc")] public Vector3 Acc { set; get; }
@@ -56,17 +56,17 @@ namespace GrayBlue_WinProxy.GrayBlue.Data {
         [JsonProperty("quat")] public Quaternion Quat { set; get; }
     }
 
-    [JsonObject("vec3")]
+    //[JsonObject("vec3")]
     public struct Vector3 {
         public float x, y, z;
     }
 
-    [JsonObject("quat")]
+    //[JsonObject("quat")]
     public struct Quaternion {
         public float w, x, y, z;
     }
 
-    [JsonObject("button")]
+    //[JsonObject("button")]
     public class Button {
         [JsonProperty("device_id")] public string DeviceId { set; get; }
         [JsonProperty("button")] public string ButtonName { set; get; }

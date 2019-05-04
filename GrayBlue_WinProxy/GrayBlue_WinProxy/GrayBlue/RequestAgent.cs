@@ -15,10 +15,17 @@ namespace GrayBlue_WinProxy.GrayBlue {
             this.notify = notify;
         }
 
-        public void OnReceiveJson(Method method) {
+        public void OnReceiveJson(string json) {
             // 受信するのはBLEに対する要求(Scan/Connect)のみ
             // センサデータの通知は来たとしても無視
-
+            var data = JsonConvert.DeserializeObject<GrayBlueJson<object>>(json);
+            if (data.Type != "Method") {
+                return;
+            }
+            var method = JsonConvert.DeserializeObject<GrayBlueJson<Method>>(json)?.Content;
+            if (method == null) {
+                return;
+            }
             if (!Enum.TryParse(method.Name, out MethodType methodType)) {
                 Debug.WriteLine($"unknown method {method.Name}");
                 return;

@@ -9,15 +9,15 @@ namespace GrayBlue_WinProxy {
 
         static void Main(string[] args) {
             // server setup
-            Console.WriteLine("Awake");
+            Console.WriteLine("Awaking...");
             var server = new ProxyServer(hostName, portNo, bleProxy);
             server.Start();
             server.RunAsync();
-            Console.WriteLine("Server Open");
+            Console.WriteLine($"Server Open. host={hostName}, port={portNo}");
             // attach to bleProxy
             bleProxy.BLENotifyDelegate = server;
             // finish with Enter key
-            Console.WriteLine("Put [Enter] to finish");
+            Console.WriteLine("Put [Enter] to close");
             Console.ReadKey();
             server.Close();
             bleProxy.Dispose();

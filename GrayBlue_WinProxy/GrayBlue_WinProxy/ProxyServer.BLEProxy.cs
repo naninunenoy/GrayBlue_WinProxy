@@ -12,11 +12,9 @@ using GrayBlue_WinProxy.GrayBlue;
 namespace GrayBlue_WinProxy {
     partial class ProxyServer : IBLENotify {
         private readonly RequestAgent requestAgent;
-        private readonly ArraySegment<byte> buffer;
-        private readonly UTF8Encoding utf8;
 
         void IBLENotify.OnRequestDone(string requestName, string requestParam, string response) {
-            var json = JsonConverter.ToMethodResultJson(requestName, requestName, response);
+            var json = JsonConverter.ToMethodResultJson(requestName, requestParam, response);
             Task.Run(async () => { await Broadcast(json); });
         }
 
