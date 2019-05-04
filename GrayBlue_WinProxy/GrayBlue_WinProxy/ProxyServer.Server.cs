@@ -14,18 +14,11 @@ namespace GrayBlue_WinProxy {
     /**
      * 参考：http://kimux.net/?p=956
      **/
-    class ProxyServer {
+    partial class ProxyServer {
         private readonly HttpListener httpListener;
         private readonly List<WebSocket> clients;
         private readonly List<IDisposable> clientDisposables;
         private IDisposable clientWaitDisposable;
-
-        public ProxyServer(string host, int port) {
-            httpListener = new HttpListener();
-            httpListener.Prefixes.Add($"http://{host}:{port}/");
-            clients = new List<WebSocket>();
-            clientDisposables = new List<IDisposable>();
-        }
 
         public void Start() {
             httpListener.Start();
@@ -35,13 +28,14 @@ namespace GrayBlue_WinProxy {
             // wait for client
             clientWaitDisposable = Observable
                 .Timer(TimeSpan.Zero)
+                .SubscribeOn(ThreadPoolScheduler.Instance)
                 .Subscribe(async _ => {
                     var listenerContext = await httpListener.GetContextAsync();
                     if (listenerContext.Request.IsWebSocketRequest) {
-                        /// httpのハンドシェイクがWebSocketならWebSocket接続開始
+                        // httpのハンドシェイクがWebSocketならWebSocket接続開始
                         await WebSocketProcessRequest(listenerContext).ConfigureAwait(false);
                     } else {
-                        /// httpレスポンスを返す
+                        // httpレスポンスを返す
                         listenerContext.Response.StatusCode = 400;
                         listenerContext.Response.Close();
                     }
@@ -49,8 +43,8 @@ namespace GrayBlue_WinProxy {
         }
 
         public void Close() {
-            clientWaitDisposable.Dispose();
-            httpListener.Close();
+            clientWaitDisposable?.Dispose();
+            httpListener?.Close();
             clientDisposables.ForEach(x => x.Dispose());
             clientDisposables.Clear();
             clients.ForEach(x => x.Dispose());
@@ -58,16 +52,18 @@ namespace GrayBlue_WinProxy {
         }
 
         async Task WebSocketProcessRequest(HttpListenerContext listenerContext) {
-            Console.WriteLine("{0}:New Session:{1}", DateTime.Now.ToString(), listenerContext.Request.RemoteEndPoint.Address.ToString());
+            Debug.WriteLine($"New Session:{listenerContext.Request.RemoteEndPoint.Address}");
 
             // WebSocketの接続完了を待機してWebSocketオブジェクトを取得する
             var ws = (await listenerContext.AcceptWebSocketAsync(subProtocol: null)).WebSocket;
+            Debug.WriteLine($"ws State:{ws.State} {ws.SubProtocol}");
 
             // 新規クライアントを追加
             clients.Add(ws);
 
             // WebSocketの送受信ループ
             var buffer = new ArraySegment<byte>(new byte[1024]);
+            var address = listenerContext.Request.RemoteEndPoint.Address;
             var isOpne = (ws.State == WebSocketState.Open);
 
             // エラー時の処理をまとめる
@@ -87,34 +83,35 @@ namespace GrayBlue_WinProxy {
                     try {
                         var data = await ws.ReceiveAsync(buffer, CancellationToken.None);
                         if (data.MessageType == WebSocketMessageType.Text) {
-                            Debug.WriteLine("{0}:String Received:{1}", DateTime.Now.ToString(), listenerContext.Request.RemoteEndPoint.Address.ToString());
-                            Debug.WriteLine("Message={0}", Encoding.UTF8.GetString(buffer.Take(data.Count).ToArray()));
-                            // 自分以外の各クライアントへ配信
-                            Parallel.ForEach(clients,
-                                c => {
-                                    if (ws != c) {
-                                        c.SendAsync(
-                                            new ArraySegment<byte>(buffer.Take(data.Count).ToArray()),
-                                            WebSocketMessageType.Text,
-                                            true,
-                                            CancellationToken.None);
-                                    }
-                                });
+                            Debug.WriteLine($"String Received:{address}");
+                            var rawData = buffer.Take(data.Count).ToArray();
+                            var message = Encoding.UTF8.GetString(rawData);
+                            Debug.WriteLine($"Message:{message}");
+                            // TBD
+
                             isOpne = (ws.State == WebSocketState.Open);
                         } else if (data.MessageType == WebSocketMessageType.Close) {
                             // close
-                            Debug.WriteLine("{0}:Session Close:{1}", DateTime.Now.ToString(), listenerContext.Request.RemoteEndPoint.Address.ToString());
+                            Debug.WriteLine($"Session Close:{address}");
                             CloseAndRemove();
                         } else {
                             // Do Nothing
                         }
                     } catch (Exception ex) {
                         // 例外 (クライアントが異常終了)
-                        Debug.WriteLine("{0}:Session Abort:{1} {2}", DateTime.Now.ToString(), listenerContext.Request.RemoteEndPoint.Address.ToString(), ex.Message);
+                        Debug.WriteLine($"Session Abort:{address} {ex.Message}");
                         CloseAndRemove();
                     }
                 });
             clientDisposables.Add(disposable);
+        }
+
+        private async Task Broadcast(string message) {
+            var buff = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
+            var tasks = clients
+                .Where(x => x.State == WebSocketState.Open)
+                .Select(x => x.SendAsync(buff, WebSocketMessageType.Text, true, CancellationToken.None));
+            await Task.WhenAll(tasks);
         }
     }
 }

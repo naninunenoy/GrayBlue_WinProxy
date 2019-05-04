@@ -51,10 +51,14 @@ namespace GrayBlue_WinProxy {
                 .TakeWhile(_ => client.State == WebSocketState.Open)
                 .Subscribe(async _ => {
                     // receive json
-                    var result = await client.ReceiveAsync(buffer, CancellationToken.None);
-                    if (result.MessageType == WebSocketMessageType.Text) {
-                        var json = utf8.GetString(buffer.Take(result.Count).ToArray());
-                        requestAgent.OnReceiveJson(json);
+                    try {
+                        var result = await client.ReceiveAsync(buffer, CancellationToken.None);
+                        if (result.MessageType == WebSocketMessageType.Text) {
+                            var json = utf8.GetString(buffer.Take(result.Count).ToArray());
+                            requestAgent.OnReceiveJson(json);
+                        }
+                    } catch (Exception ex) {
+                        Debug.WriteLine(ex.Message);
                     }
                 });
         }
