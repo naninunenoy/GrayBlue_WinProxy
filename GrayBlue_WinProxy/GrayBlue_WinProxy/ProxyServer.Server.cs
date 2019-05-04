@@ -75,36 +75,39 @@ namespace GrayBlue_WinProxy {
             };
 
             var disposable = Observable
-                .Timer(TimeSpan.Zero)
-                .TakeWhile(_ => isOpne)
-                .SubscribeOn(ThreadPoolScheduler.Instance)
-                .Subscribe(async _ => {
-                    // 受信待機
-                    try {
-                        var data = await ws.ReceiveAsync(buffer, CancellationToken.None);
-                        if (data.MessageType == WebSocketMessageType.Text) {
-                            Debug.WriteLine($"String Received:{address}");
-                            var rawData = buffer.Take(data.Count).ToArray();
-                            var message = Encoding.UTF8.GetString(rawData);
-                            Debug.WriteLine($"Message:{message}");
+                .Start(async () => {
+                    while (isOpne) {
+                        // 受信待機
+                        try {
+                            var data = await ws.ReceiveAsync(buffer, CancellationToken.None);
+                            Debug.WriteLine(data.MessageType);
+                            if (data.MessageType == WebSocketMessageType.Text) {
+                                Debug.WriteLine($"String Received:{address}");
+                                var rawData = buffer.Take(data.Count).ToArray();
+                                var message = Encoding.UTF8.GetString(rawData);
+                                Debug.WriteLine($"Message:{message}");
 
-                            // jsonを解析し、MethodならBLEの操作を行う
-                            requestAgent.OnReceiveJson(message);
+                                // jsonを解析し、MethodならBLEの操作を行う
+                                requestAgent.OnReceiveJson(message);
 
-                            isOpne = (ws.State == WebSocketState.Open);
-                        } else if (data.MessageType == WebSocketMessageType.Close) {
-                            // close
-                            Debug.WriteLine($"Session Close:{address}");
+                                isOpne = (ws.State == WebSocketState.Open);
+                            } else if (data.MessageType == WebSocketMessageType.Close) {
+                                // close
+                                Debug.WriteLine($"Session Close:{address}");
+                                CloseAndRemove();
+                            } else {
+                                // Do Nothing
+                            }
+                        } catch (Exception ex) {
+                            // 例外 (クライアントが異常終了)
+                            Debug.WriteLine($"Session Abort:{address} {ex.Message}");
                             CloseAndRemove();
-                        } else {
-                            // Do Nothing
                         }
-                    } catch (Exception ex) {
-                        // 例外 (クライアントが異常終了)
-                        Debug.WriteLine($"Session Abort:{address} {ex.Message}");
-                        CloseAndRemove();
+                        await Task.Delay(1);
                     }
-                });
+                })
+                .SubscribeOn(ThreadPoolScheduler.Instance)
+                .Subscribe();
             clientDisposables.Add(disposable);
         }
 
@@ -113,7 +116,9 @@ namespace GrayBlue_WinProxy {
             var tasks = clients
                 .Where(x => x.State == WebSocketState.Open)
                 .Select(x => x.SendAsync(buff, WebSocketMessageType.Text, true, CancellationToken.None));
-            await Task.WhenAll(tasks);
+            foreach (var t in tasks) {
+                await t;
+            }
         }
     }
 }
