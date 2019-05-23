@@ -15,32 +15,36 @@ namespace GrayBlue_WinProxy {
 
         void IBLENotify.OnRequestDone(string requestName, string requestParam, string response) {
             var json = JsonConverter.ToMethodResultJson(requestName, requestParam, response);
-            Task.Run(async () => { await Broadcast(json); });
+            RunTaskOn(context, Broadcast(json));
         }
 
         void IBLENotify.OnConnectSuccess(string deviceId) {
             var json = JsonConverter.ToConnectResultJson(deviceId, true);
-            Task.Run(async () => { await Broadcast(json); });
+            RunTaskOn(context, Broadcast(json));
         }
 
         void IBLENotify.OnConnectFail(string deviceId) {
             var json = JsonConverter.ToConnectResultJson(deviceId, false);
-            Task.Run(async () => { await Broadcast(json); });
+            RunTaskOn(context, Broadcast(json));
         }
 
         void IBLENotify.OnDeviceLost(string deviceId) {
             var json = JsonConverter.ToDeviceLostJson(deviceId);
-            Task.Run(async () => { await Broadcast(json); });
+            RunTaskOn(context, Broadcast(json));
         }
 
         void IBLENotify.OnButtonOperation(string devceId, bool isPush, string button, float time) {
             var json = JsonConverter.ToButtonNotifyJson(devceId, isPush, button, time);
-            Task.Run(async () => { await Broadcast(json); });
+            RunTaskOn(context, Broadcast(json));
         }
 
         void IBLENotify.OnIMUDataUpdate(string deviceId, float[] acc, float[] gyro, float[] mag, float[] quat) {
             var json = JsonConverter.ToIMUNotifyJson(deviceId, acc, gyro, mag, quat);
-            Task.Run(async () => { await Broadcast(json); });
+            RunTaskOn(context, Broadcast(json));
+        }
+
+        void RunTaskOn(SynchronizationContext on, Task task) {
+            on?.Post(async _ => { await task; }, null);
         }
     }
 }

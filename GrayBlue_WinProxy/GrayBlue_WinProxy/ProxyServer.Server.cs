@@ -19,9 +19,11 @@ namespace GrayBlue_WinProxy {
         private readonly List<WebSocket> clients;
         private readonly List<IDisposable> clientDisposables;
         private IDisposable clientWaitDisposable;
+        private SynchronizationContext context;
 
         public void Start() {
             httpListener.Start();
+            context = SynchronizationContext.Current;
         }
 
         public void RunAsync() {
