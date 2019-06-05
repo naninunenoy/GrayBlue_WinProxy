@@ -4,15 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
-using System.Net.WebSockets;
-using System.Reactive.Linq;
 using GrayBlue_WinProxy.GrayBlue;
 
 namespace GrayBlue_WinProxy {
     partial class ProxyServer : IBLENotify {
         private readonly RequestAgent requestAgent;
-        object lockObject = new object();
+        private readonly object lockObject = new object();
 
         void IBLENotify.OnRequestDone(string requestName, string requestParam, string response) {
             var json = JsonConverter.ToMethodResultJson(requestName, requestParam, response);

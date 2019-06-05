@@ -66,11 +66,11 @@ namespace GrayBlue_WinProxy {
             // WebSocketの送受信ループ
             var buffer = new ArraySegment<byte>(new byte[1024]);
             var address = listenerContext.Request.RemoteEndPoint.Address;
-            var isOpne = (ws.State == WebSocketState.Open);
+            var isOpen = (ws.State == WebSocketState.Open);
 
             // エラー時の処理をまとめる
             void CloseAndRemove() {
-                isOpne = false;
+                isOpen = false;
                 // クライアントを除外する
                 clients.Remove(ws);
                 ws.Dispose();
@@ -78,11 +78,10 @@ namespace GrayBlue_WinProxy {
 
             var disposable = Observable
                 .Start(async () => {
-                    while (isOpne) {
+                    while (isOpen) {
                         // 受信待機
                         try {
                             var data = await ws.ReceiveAsync(buffer, CancellationToken.None);
-                            Debug.WriteLine(data.MessageType);
                             if (data.MessageType == WebSocketMessageType.Text) {
                                 Debug.WriteLine($"String Received:{address}");
                                 var rawData = buffer.Take(data.Count).ToArray();
@@ -92,7 +91,7 @@ namespace GrayBlue_WinProxy {
                                 // jsonを解析し、MethodならBLEの操作を行う
                                 requestAgent.OnReceiveJson(message);
 
-                                isOpne = (ws.State == WebSocketState.Open);
+                                isOpen = (ws.State == WebSocketState.Open);
                             } else if (data.MessageType == WebSocketMessageType.Close) {
                                 // close
                                 Debug.WriteLine($"Session Close:{address}");
@@ -105,7 +104,7 @@ namespace GrayBlue_WinProxy {
                             Debug.WriteLine($"Session Abort:{address} {ex.Message}");
                             CloseAndRemove();
                         }
-                        await Task.Delay(1);
+                        await Task.Delay(1); // sleep 1ms
                     }
                 })
                 .SubscribeOn(ThreadPoolScheduler.Instance)
