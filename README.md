@@ -8,9 +8,9 @@ This is proxy software for converting protocol of [GrayBlue](https://github.com/
 <img src="https://img.shields.io/badge/platform-windows10-lightGray.svg" /> 
 
 ## Demo
-Applied the notified quaternion to the `GameObject`.
+You can receive notified quaternion on UnityEditor with this app.
 
-<img src="https://github.com/naninunenoy/GrayBlue/blob/doc/doc/demo.gif?raw=true" width="200" />
+<img src="https://github.com/naninunenoy/GrayBlue/blob/doc/doc/demo_editor.gif?raw=true" width="200" />
 
 ## Description
 
