@@ -142,7 +142,7 @@ A server notify M5Stack-Gray button events. It express as **NotifyButton**.
 
   ```js
   {
-      "type" : "NotifyIMU",
+      "type" : "NotifyButton",
       "content" : {
           "device_id" : "BluetoothLE#BluetoothLE98:5f:d3:3a:e8:3c-84:0d:8e:3d:32:02",
           "button" : "A",
@@ -156,7 +156,7 @@ A server notify M5Stack-Gray button events. It express as **NotifyButton**.
 
   ```js
   {
-      "type" : "NotifyIMU",
+      "type" : "NotifyButton",
       "content" : {
           "device_id" : "BluetoothLE#BluetoothLE98:5f:d3:3a:e8:3c-84:0d:8e:3d:32:02",
           "button" : "A",
